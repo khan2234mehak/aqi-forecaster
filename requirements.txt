@@ -1,0 +1,28 @@
+# ── Web Framework ──────────────────────────
+flask==3.0.3
+flask-cors==4.0.1
+
+# ── Database ───────────────────────────────
+sqlalchemy==2.0.31
+pymysql==1.1.1
+cryptography==43.0.0
+
+# ── Data Science & ML ──────────────────────
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.1
+joblib==1.4.2
+scipy==1.14.0
+
+# ── Visualization (for notebooks) ──────────
+matplotlib==3.9.1
+seaborn==0.13.2
+
+# ── Utilities ──────────────────────────────
+python-dotenv==1.0.1
+requests==2.32.3
+gunicorn==22.0.0
+
+# ── Optional: Jupyter Notebook ─────────────
+# jupyter==1.0.0
+# ipykernel==6.29.5

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AQI Forecaster India — Real-time Air Quality Monitor</title>
+
+  <!-- Leaflet Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────── -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo">
+      <span class="logo-icon">🌫️</span>
+      <div>
+        <h1>AQI Forecaster</h1>
+        <p class="subtitle">India Air Quality Intelligence</p>
+      </div>
+    </div>
+  </div>
+  <div class="header-center">
+    <div class="stat-pill" id="national-avg">
+      <span class="pill-label">National Avg</span>
+      <span class="pill-value" id="nat-avg-val">—</span>
+    </div>
+    <div class="stat-pill">
+      <span class="pill-label">Cities Monitored</span>
+      <span class="pill-value">20</span>
+    </div>
+    <div class="stat-pill" id="worst-city-pill">
+      <span class="pill-label">Most Polluted</span>
+      <span class="pill-value" id="worst-city-val">—</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+    <span class="timestamp" id="last-updated">Updating...</span>
+    <button class="train-btn" onclick="triggerTraining()" title="Train ML Models">⚙️ Train Models</button>
+  </div>
+</header>
+
+<!-- ── MAIN LAYOUT ─────────────────────────── -->
+<div class="main-layout">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <h3 class="section-title">🏙️ City Rankings</h3>
+      <div class="ranking-list" id="ranking-list">
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3 class="section-title">🎨 AQI Legend</h3>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#00e400"></span><span>0–50</span><strong>Good</strong></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#ffff00"></span><span>51–100</span><strong>Satisfactory</strong></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#ff7e00"></span><span>101–200</span><strong>Moderate</strong></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#ff0000"></span><span>201–300</span><strong>Poor</strong></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#8f3f97"></span><span>301–400</span><strong>Very Poor</strong></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#7e0023"></span><span>401–500</span><strong>Severe</strong></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3 class="section-title">📊 Category Distribution</h3>
+      <canvas id="dist-chart" height="180"></canvas>
+    </div>
+  </aside>
+
+  <!-- MAP CONTAINER -->
+  <div class="map-section">
+    <div id="map"></div>
+
+    <!-- AQI SCALE BAR -->
+    <div class="map-scale-bar">
+      <div class="scale-gradient"></div>
+      <div class="scale-labels">
+        <span>0</span><span>100</span><span>200</span><span>300</span><span>400</span><span>500</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL – City Detail -->
+  <aside class="detail-panel" id="detail-panel">
+    <div class="panel-placeholder" id="panel-placeholder">
+      <div class="placeholder-icon">📍</div>
+      <p>Click a city on the map<br>to see detailed forecast</p>
+    </div>
+
+    <div class="panel-content" id="panel-content" style="display:none">
+      <div class="panel-header">
+        <div>
+          <h2 id="detail-city-name">—</h2>
+          <p id="detail-city-state" class="detail-state">—</p>
+        </div>
+        <button class="close-btn" onclick="closePanel()">✕</button>
+      </div>
+
+      <!-- Current AQI Big Display -->
+      <div class="aqi-big-display" id="aqi-big-display">
+        <div class="aqi-circle" id="aqi-circle">
+          <span class="aqi-number" id="aqi-number">—</span>
+          <span class="aqi-label">AQI</span>
+        </div>
+        <div class="aqi-meta">
+          <span class="aqi-category" id="aqi-category">—</span>
+          <p class="health-advice" id="health-advice">—</p>
+        </div>
+      </div>
+
+      <!-- Pollutants Grid -->
+      <div class="pollutant-grid" id="pollutant-grid">
+        <div class="pollutant-card"><span class="p-name">PM2.5</span><span class="p-val" id="p-pm25">—</span><span class="p-unit">μg/m³</span></div>
+        <div class="pollutant-card"><span class="p-name">PM10</span><span class="p-val" id="p-pm10">—</span><span class="p-unit">μg/m³</span></div>
+        <div class="pollutant-card"><span class="p-name">NO₂</span><span class="p-val" id="p-no2">—</span><span class="p-unit">μg/m³</span></div>
+        <div class="pollutant-card"><span class="p-name">SO₂</span><span class="p-val" id="p-so2">—</span><span class="p-unit">μg/m³</span></div>
+        <div class="pollutant-card"><span class="p-name">CO</span><span class="p-val" id="p-co">—</span><span class="p-unit">mg/m³</span></div>
+        <div class="pollutant-card"><span class="p-name">O₃</span><span class="p-val" id="p-o3">—</span><span class="p-unit">μg/m³</span></div>
+      </div>
+
+      <!-- Weather Strip -->
+      <div class="weather-strip" id="weather-strip">
+        <div class="wx-item"><span>🌡️</span><span id="wx-temp">—</span></div>
+        <div class="wx-item"><span>💧</span><span id="wx-hum">—</span></div>
+        <div class="wx-item"><span>💨</span><span id="wx-wind">—</span></div>
+        <div class="wx-item"><span>👁️</span><span id="wx-vis">—</span></div>
+      </div>
+
+      <!-- Tabs: History | Forecast -->
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('history')" id="tab-history">📈 30-Day History</button>
+        <button class="tab-btn" onclick="switchTab('forecast')" id="tab-forecast">🔮 7-Day Forecast</button>
+      </div>
+
+      <div class="chart-wrapper">
+        <canvas id="detail-chart"></canvas>
+      </div>
+
+      <!-- Forecast Table -->
+      <div class="forecast-table-wrapper" id="forecast-table-wrapper" style="display:none">
+        <table class="forecast-table" id="forecast-table">
+          <thead><tr><th>Date</th><th>Predicted AQI</th><th>Category</th><th>Range</th></tr></thead>
+          <tbody id="forecast-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- ── TOAST ───────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>
