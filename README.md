@@ -1,18 +1,47 @@
-# 🌫️ AQI Forecaster — City-Level Air Quality Intelligence
+# 🌍 AQI Forecaster – Air Quality Intelligence & Forecasting System
 
-A full-stack + data science project that monitors, analyzes, and forecasts **Air Quality Index (AQI)** for 20 major Indian cities using time-series ML models and an interactive map dashboard.
+A full-stack data science application that monitors, analyzes, and forecasts the **Air Quality Index (AQI)** for major Indian cities using machine learning and interactive data visualization.
+
+The system combines **time-series feature engineering**, **ensemble machine learning models**, **Flask REST APIs**, **MySQL**, and an interactive dashboard built with **Leaflet.js** and **Chart.js** to provide real-time AQI monitoring, historical trend analysis, and multi-day air quality forecasting.
 
 ---
-
 ## 🚀 Features
 
-| Layer | What it does |
-|-------|-------------|
-| **Data Science** | RandomForest + GradientBoosting ensemble, 35+ engineered features, lag/rolling/cyclical encoding, 7-day forecast with 95% CI |
-| **Backend** | Flask REST API, SQLAlchemy ORM, MySQL database, background model training |
-| **Frontend** | Leaflet.js interactive map, Chart.js time-series charts, live AQI bubbles, city detail panel |
-| **Database** | MySQL with 5 normalized tables: cities, aqi_readings, weather_readings, aqi_forecasts, model_registry |
+### 🌫 Air Quality Forecasting
 
+- AQI prediction using ensemble machine learning models
+- Random Forest + Gradient Boosting
+- Multi-day AQI forecasting
+- Confidence Interval estimation
+
+### 📊 Data Science
+
+- Feature Engineering
+- Lag Features
+- Rolling Statistics
+- Cyclical Time Encoding
+- Time-Series Modeling
+
+### 🌐 Interactive Dashboard
+
+- Live AQI Map
+- Historical Trend Charts
+- City-wise Analytics
+- Interactive Dashboard
+
+### ⚙ Backend
+
+- Flask REST APIs
+- SQLAlchemy ORM
+- Background Model Training
+- MySQL Database
+
+### 📈 Visualization
+
+- Leaflet.js Interactive Maps
+- Chart.js Graphs
+- AQI Trend Visualization
+- Forecast Charts
 ---
 
 ## 📁 Project Structure
